@@ -58,10 +58,10 @@ This deliberately wakes drives as soon as a client *connects*, so the drives hav
 
 ## Building
 
-Requires `debhelper` and `devscripts`:
+Requires `build-essential`, `debhelper`, and `devscripts`:
 
 ```sh
-sudo apt install debhelper devscripts
+sudo apt install build-essential debhelper devscripts
 dpkg-buildpackage -us -uc -b
 ```
 

@@ -1,7 +1,7 @@
 Source: jellyfin-wake-hdd
 Section: admin
 Priority: optional
-Maintainer: Liam Newmarch
+Maintainer: Liam Newmarch <liamnewmarch@users.noreply.github.com>
 Build-Depends: debhelper-compat (= 13)
 Standards-Version: 4.6.2
 Rules-Requires-Root: no
