@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+# The unit needs a valid API key and wake paths before it can do
+# anything useful, so install it enabled-at-boot but don't start it
+# during the package install itself — see debian/postinst for the
+# post-install message pointing at the config file.
+override_dh_installsystemd:
+	dh_installsystemd --no-start

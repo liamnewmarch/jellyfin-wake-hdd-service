@@ -1,0 +1,51 @@
+.TH JELLYFIN-WAKE-HDD.CONF 5 "September 2026" "jellyfin-wake-hdd" "File Formats"
+.SH NAME
+jellyfin-wake-hdd.conf \- configuration file for jellyfin-wake-hdd
+.SH DESCRIPTION
+.I /etc/jellyfin-wake-hdd.conf
+is sourced as a
+.BR bash (1)
+script by
+.BR jellyfin-wake-hdd (8)
+on every run, so values must use bash syntax. It is re-read on every run;
+no restart is needed after editing it.
+.SH DIRECTIVES
+.TP
+.B JELLYFIN_URL
+Base URL of the Jellyfin server. Default:
+.IR http://localhost:8096 .
+.TP
+.B JELLYFIN_API_KEY
+API key with access to the Jellyfin
+.I /Sessions
+endpoint. Create one under Jellyfin's Dashboard -> API Keys. Required;
+the service refuses to run without one.
+.TP
+.B WAKE_PATHS
+Bash array of filesystem paths to
+.BR stat (1)
+in order to wake the underlying drives. One path per drive or enclosure
+that needs waking is usually enough, since reading from any file on a
+drive wakes the whole physical disk (and, on enclosures that spin up
+members together, the whole enclosure). Required; the service refuses to
+run if this is empty.
+.TP
+.B MIN_SESSIONS
+Minimum number of connected Jellyfin sessions (idle or playing) required
+before drives are woken. Default: 1.
+.TP
+.B CURL_TIMEOUT
+Timeout in seconds for the request to the Jellyfin API. Default: 3.
+.SH EXAMPLE
+.nf
+JELLYFIN_URL="http://localhost:8096"
+JELLYFIN_API_KEY="0123456789abcdef0123456789abcdef"
+WAKE_PATHS=(
+    "/mnt/my-first-hdd/TV Shows"
+    "/mnt/my-other-hdd/Movies"
+)
+MIN_SESSIONS=1
+CURL_TIMEOUT=3
+.fi
+.SH SEE ALSO
+.BR jellyfin-wake-hdd (8)

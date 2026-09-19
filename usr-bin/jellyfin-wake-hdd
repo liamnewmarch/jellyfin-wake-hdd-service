@@ -1,0 +1,53 @@
+#!/bin/bash
+
+set -euo pipefail
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+CONFIG_FILE="${JELLYFIN_WAKE_HDD_CONFIG:-/etc/jellyfin-wake-hdd.conf}"
+
+# Defaults; anything set in the config file overrides these.
+JELLYFIN_URL="http://localhost:8096"
+JELLYFIN_API_KEY=""
+WAKE_PATHS=()
+CURL_TIMEOUT=3
+MIN_SESSIONS=1
+
+if [ -r "$CONFIG_FILE" ]; then
+    # shellcheck source=/etc/jellyfin-wake-hdd.conf
+    source "$CONFIG_FILE"
+else
+    echo "jellyfin-wake-hdd: config file $CONFIG_FILE not found or not readable" >&2
+    exit 1
+fi
+
+if [ -z "$JELLYFIN_API_KEY" ]; then
+    echo "jellyfin-wake-hdd: JELLYFIN_API_KEY is not set in $CONFIG_FILE" >&2
+    exit 1
+fi
+
+if [ "${#WAKE_PATHS[@]}" -eq 0 ]; then
+    echo "jellyfin-wake-hdd: WAKE_PATHS is empty in $CONFIG_FILE — nothing to wake" >&2
+    exit 1
+fi
+
+session_count="$(
+    curl -fsS --max-time "$CURL_TIMEOUT" \
+        -H "X-Emby-Token: ${JELLYFIN_API_KEY}" \
+        "${JELLYFIN_URL%/}/Sessions" \
+    | jq 'length'
+)"
+
+if ! [[ "$session_count" =~ ^[0-9]+$ ]]; then
+    echo "jellyfin-wake-hdd: unexpected response from ${JELLYFIN_URL} (could not parse session count)" >&2
+    exit 1
+fi
+
+if [ "$session_count" -ge "$MIN_SESSIONS" ]; then
+    echo "jellyfin-wake-hdd: ${session_count} active session(s) — waking drives"
+    # stat (rather than a full read) is enough to force the enclosure to
+    # spin up without reading meaningful data off the disks.
+    stat "${WAKE_PATHS[@]}" > /dev/null
+else
+    echo "jellyfin-wake-hdd: ${session_count} active session(s) — nothing to do"
+fi

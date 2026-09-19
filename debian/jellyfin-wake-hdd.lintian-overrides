@@ -1,0 +1,4 @@
+# postinst mentions `systemctl start` inside a plain-text message telling
+# the admin how to start the timer once they've configured it. It doesn't
+# call systemctl itself.
+jellyfin-wake-hdd: maintainer-script-calls-systemctl

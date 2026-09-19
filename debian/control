@@ -1,0 +1,22 @@
+Source: jellyfin-wake-hdd
+Section: admin
+Priority: optional
+Maintainer: Liam Newmarch
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/liamnewmarch/jellyfin-wake-hdd-service
+
+Package: jellyfin-wake-hdd
+Architecture: all
+Depends: ${misc:Depends}, curl, jq, systemd
+Description: This package installs a systemd service which polls Jellyfin.
+ When a client connects, it wakes hard disks so they’re ready for playback.
+ .
+ Enclosures with multiple drives that spin up in series can introduce a
+ noticeable delay (several seconds) the first time Jellyfin reads from
+ disk after an idle period, because the whole enclosure has to wake up
+ before playback can start.
+ .
+ Configuration (Jellyfin URL, API key, and the paths to touch) lives in
+ /etc/jellyfin-wake-hdd.conf.

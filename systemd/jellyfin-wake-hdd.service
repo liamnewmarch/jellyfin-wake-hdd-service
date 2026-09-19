@@ -1,0 +1,18 @@
+[Unit]
+Description=Keep NAS drives spinning while Jellyfin clients are connected
+Documentation=man:jellyfin-wake-hdd(8) man:jellyfin-wake-hdd.conf(5)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/jellyfin-wake-hdd
+
+# Sandboxing: this only needs to read its config, reach the network, and
+# stat paths defined in WAKE_PATHS (e.g. /mnt).
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+# "-" prefix: don't fail if the mount point doesn't exist yet at boot.
+ReadOnlyPaths=-/mnt -/media

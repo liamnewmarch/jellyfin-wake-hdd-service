@@ -1,0 +1,25 @@
+#!/bin/sh
+set -e
+
+#DEBHELPER#
+
+if [ "$1" = "configure" ]; then
+    if [ -z "$2" ]; then
+        # First install (not an upgrade).
+        cat <<-EOF
+
+		jellyfin-wake-hdd installed but not started.
+
+		Edit /etc/jellyfin-wake-hdd.conf to set your Jellyfin API key
+		and the paths to wake, then start it with:
+
+		    systemctl start jellyfin-wake-hdd.timer
+
+		It's already enabled, so it will also start automatically on
+		the next boot once configured.
+
+		EOF
+    fi
+fi
+
+exit 0

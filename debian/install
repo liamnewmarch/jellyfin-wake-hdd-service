@@ -1,0 +1,4 @@
+usr-bin/jellyfin-wake-hdd usr/sbin
+jellyfin-wake-hdd.conf etc
+systemd/jellyfin-wake-hdd.service lib/systemd/system
+systemd/jellyfin-wake-hdd.timer lib/systemd/system

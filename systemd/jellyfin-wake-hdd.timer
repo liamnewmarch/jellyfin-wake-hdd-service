@@ -1,0 +1,14 @@
+[Unit]
+Description=Run jellyfin-wake-hdd.service periodically
+Documentation=man:jellyfin-wake-hdd(8) man:jellyfin-wake-hdd.conf(5)
+
+[Timer]
+# Run one minute after boot to give other services (e.g. Docker) time to start.
+OnBootSec=1min
+# Run 15 seconds after the last run.
+# Do not edit. Use `systemctl edit jellyfin-wake-hdd.timer` to change this value.
+OnUnitActiveSec=15s
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

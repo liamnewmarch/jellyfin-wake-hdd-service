@@ -1,0 +1,39 @@
+.TH JELLYFIN-WAKE-HDD 8 "September 2026" "jellyfin-wake-hdd" "System Administration"
+.SH NAME
+jellyfin-wake-hdd \- keep NAS drives spinning while Jellyfin clients are connected
+.SH SYNOPSIS
+.B jellyfin-wake-hdd
+.SH DESCRIPTION
+.B jellyfin-wake-hdd
+queries the Jellyfin API for currently connected client sessions
+(including clients that are connected but idle, not only ones actively
+playing). If at least
+.I MIN_SESSIONS
+sessions are present, it runs
+.BR stat (1)
+on each path listed in
+.I WAKE_PATHS
+to force the underlying drives or enclosure to spin up, preventing them
+from hitting their own idle spin-down timeout while someone may start
+playback at any moment.
+.PP
+It takes no arguments and is intended to be run periodically by
+jellyfin-wake-hdd.timer,
+not invoked directly, though running it by hand is useful for testing.
+.SH FILES
+.TP
+.I /etc/jellyfin-wake-hdd.conf
+Configuration file; see
+.BR jellyfin-wake-hdd.conf (5).
+.SH EXIT STATUS
+Exits non\-zero if the config file is missing or incomplete, or if the
+Jellyfin API cannot be reached or returns something unparseable. Each
+run's outcome is written to standard output/error, which
+.B systemd
+captures in the journal
+(\fBjournalctl -u jellyfin-wake-hdd.service\fR).
+.SH SEE ALSO
+.BR jellyfin-wake-hdd.conf (5),
+.BR systemctl (1),
+.BR journalctl (1),
+.BR systemd.timer (5)
