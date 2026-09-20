@@ -31,12 +31,29 @@ if [ "${#WAKE_PATHS[@]}" -eq 0 ]; then
     exit 1
 fi
 
-session_count="$(
-    curl -fsS --max-time "$CURL_TIMEOUT" \
-        -H "X-Emby-Token: ${JELLYFIN_API_KEY}" \
-        "${JELLYFIN_URL%/}/Sessions" \
-    | jq 'length'
-)"
+# Run curl in a subshell so we can handle non-zero exit codes instead of
+# exiting due to set -x.
+if ! response="$(
+    curl -sS --max-time "$CURL_TIMEOUT" -w '\n%{http_code}' \
+        -H "Authorization: MediaBrowser Token=\"${JELLYFIN_API_KEY}\"" \
+        "${JELLYFIN_URL%/}/Sessions"
+)"; then
+    response=$'\n000'
+fi
+http_code="${response##*$'\n'}"
+body="${response%$'\n'*}"
+
+if [ "$http_code" = "401" ] || [ "$http_code" = "403" ]; then
+    echo "jellyfin-wake-hdd: ${JELLYFIN_URL} rejected JELLYFIN_API_KEY (HTTP ${http_code}) — check the key is valid and has not been revoked" >&2
+    exit 1
+fi
+
+if [[ ! "$http_code" =~ ^2 ]]; then
+    echo "jellyfin-wake-hdd: ${JELLYFIN_URL}/Sessions returned HTTP ${http_code}" >&2
+    exit 1
+fi
+
+session_count="$(jq 'length' <<< "$body" 2>/dev/null)"
 
 if ! [[ "$session_count" =~ ^[0-9]+$ ]]; then
     echo "jellyfin-wake-hdd: unexpected response from ${JELLYFIN_URL} (could not parse session count)" >&2
