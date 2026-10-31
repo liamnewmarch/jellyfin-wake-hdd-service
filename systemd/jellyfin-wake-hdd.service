@@ -9,7 +9,7 @@ Type=oneshot
 ExecStart=/usr/sbin/jellyfin-wake-hdd
 
 # Sandboxing: this only needs to read its config, reach the network, and
-# stat paths defined in WAKE_PATHS (e.g. /mnt).
+# read from the block devices behind WAKE_PATHS (e.g. /mnt).
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true

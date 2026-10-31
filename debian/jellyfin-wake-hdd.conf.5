@@ -22,10 +22,12 @@ endpoint. Create one under Jellyfin's Dashboard -> API Keys. Required;
 the service refuses to run without one.
 .TP
 .B WAKE_PATHS
-Bash array of filesystem paths to
-.BR stat (1)
-in order to wake the underlying drives. One path per drive or enclosure
-that needs waking is usually enough, since reading from any file on a
+Bash array of filesystem paths on the drives to wake. The block device
+backing each path is found with
+.BR findmnt (8)
+and one 4 KiB block is read from it, so each path must be on a local disk
+(not a FUSE or network mount). One path per drive or enclosure
+that needs waking is usually enough, since reading from a
 drive wakes the whole physical disk (and, on enclosures that spin up
 members together, the whole enclosure). Required; the service refuses to
 run if this is empty.

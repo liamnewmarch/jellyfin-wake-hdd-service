@@ -60,11 +60,39 @@ if ! [[ "$session_count" =~ ^[0-9]+$ ]]; then
     exit 1
 fi
 
+# Wake the drive behind a path by reading one 4 KiB block from its block
+# device. A stat() isn't enough: the kernel answers it from the dentry/inode
+# cache (Jellyfin's file watchers keep library folders cached), so the disk
+# is never touched. O_DIRECT bypasses the page cache, and a random offset
+# avoids being served from the drive's own buffer.
+wake_path() {
+    local path="$1" device size blocks
+    device="$(findmnt -n -o SOURCE --target "$path" 2>/dev/null)" || device=""
+    device="${device%%\[*}"  # btrfs reports /dev/sdX[/subvolume]
+    if [ ! -b "$device" ]; then
+        echo "jellyfin-wake-hdd: no block device found behind ${path} (mount source: '${device}')" >&2
+        return 1
+    fi
+    size="$(blockdev --getsize64 "$device")"
+    blocks=$(( size / 4096 ))
+    if [ "$blocks" -lt 1 ]; then
+        echo "jellyfin-wake-hdd: ${device} (for ${path}) is smaller than 4 KiB" >&2
+        return 1
+    fi
+    if ! dd if="$device" of=/dev/null bs=4096 count=1 \
+        skip=$(( (RANDOM * 32768 + RANDOM) % blocks )) iflag=direct status=none; then
+        echo "jellyfin-wake-hdd: failed to read from ${device} (for ${path})" >&2
+        return 1
+    fi
+}
+
 if [ "$session_count" -ge "$MIN_SESSIONS" ]; then
     echo "jellyfin-wake-hdd: ${session_count} active session(s) — waking drives"
-    # stat (rather than a full read) is enough to force the enclosure to
-    # spin up without reading meaningful data off the disks.
-    stat "${WAKE_PATHS[@]}" > /dev/null
+    failed=0
+    for path in "${WAKE_PATHS[@]}"; do
+        wake_path "$path" || failed=1
+    done
+    exit "$failed"
 else
     echo "jellyfin-wake-hdd: ${session_count} active session(s) — nothing to do"
 fi

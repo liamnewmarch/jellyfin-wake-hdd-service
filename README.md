@@ -52,7 +52,7 @@ sudo systemctl edit jellyfin-wake-hdd.timer
 
 ## How it works
 
-Each run queries Jellyfin’s `/Sessions` API for the number of connected clients. If at least `MIN_SESSIONS` (default 1) are connected — whether actively playing or just idle on the home screen — it runs `stat` on each path in `WAKE_PATHS`. A `stat` is enough to force the underlying drive (and, on enclosures that wake members together, the whole enclosure) to spin up, without reading meaningful data off disk (and without depending on another system package like `hdparm`).
+Each run queries Jellyfin’s `/Sessions` API for the number of connected clients. If at least `MIN_SESSIONS` (default 1) are connected — whether actively playing or just idle on the home screen — it finds the block device behind each path in `WAKE_PATHS` and reads a single 4 KiB block from it, bypassing the page cache. That forces the drive (and, on enclosures that wake members together, the whole enclosure) to spin up. A plain `stat` isn’t enough: the kernel serves it from its inode cache, which Jellyfin’s library watchers keep warm, so the disk is never touched.
 
 This deliberately wakes drives as soon as a client *connects*, so the drives have time to finish spinning up while the user is browsing.
 

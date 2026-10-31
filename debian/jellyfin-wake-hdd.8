@@ -9,9 +9,7 @@ queries the Jellyfin API for currently connected client sessions
 (including clients that are connected but idle, not only ones actively
 playing). If at least
 .I MIN_SESSIONS
-sessions are present, it runs
-.BR stat (1)
-on each path listed in
+sessions are present, it reads one 4 KiB block, bypassing the page cache, from the block device behind each path listed in
 .I WAKE_PATHS
 to force the underlying drives or enclosure to spin up, preventing them
 from hitting their own idle spin-down timeout while someone may start

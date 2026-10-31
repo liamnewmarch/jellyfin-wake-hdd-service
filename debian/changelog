@@ -1,5 +1,11 @@
 jellyfin-wake-hdd (1.0.0) unstable; urgency=medium
 
   * Initial release.
+  * Poll Jellyfin's /Sessions API and wake the drives behind WAKE_PATHS
+    when at least MIN_SESSIONS clients are connected.
+  * Wake drives by reading one 4 KiB block from the block device behind
+    each path using O_DIRECT, which always reaches the disk. A plain stat
+    is answered from the kernel's inode cache and never wakes a sleeping
+    drive.
 
- -- Liam Newmarch <liamnewmarch@users.noreply.github.com>  Sat, 19 Sep 2026 12:04:33 +0100
+ -- Liam Newmarch <liamnewmarch@users.noreply.github.com>  Sat, 31 Oct 2026 14:30:00 +0000
