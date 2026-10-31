@@ -1,3 +1,13 @@
+jellyfin-wake-hdd (1.0.1) unstable; urgency=medium
+
+  * Keep the timer running across package upgrades. Previously it was
+    stopped on upgrade and not restarted until the next reboot.
+  * Install /etc/jellyfin-wake-hdd.conf with mode 0600 as it contains the
+    Jellyfin API key.
+  * Fix the README's default timer interval (15s, not 30s).
+
+ -- Liam Newmarch <liamnewmarch@users.noreply.github.com>  Sat, 31 Oct 2026 15:00:00 +0000
+
 jellyfin-wake-hdd (1.0.0) unstable; urgency=medium
 
   * Initial release.

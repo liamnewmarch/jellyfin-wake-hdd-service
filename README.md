@@ -46,7 +46,7 @@ systemctl list-timers jellyfin-wake-hdd.timer
 # Follow what each run finds and does
 journalctl -u jellyfin-wake-hdd.service -f
 
-# Change how often it runs (default: every 30s) without losing the change on upgrade
+# Change how often it runs (default: every 15s) without losing the change on upgrade
 sudo systemctl edit jellyfin-wake-hdd.timer
 ```
 

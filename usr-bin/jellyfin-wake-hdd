@@ -32,7 +32,7 @@ if [ "${#WAKE_PATHS[@]}" -eq 0 ]; then
 fi
 
 # Run curl in a subshell so we can handle non-zero exit codes instead of
-# exiting due to set -x.
+# exiting due to set -e.
 if ! response="$(
     curl -sS --max-time "$CURL_TIMEOUT" -w '\n%{http_code}' \
         -H "Authorization: MediaBrowser Token=\"${JELLYFIN_API_KEY}\"" \
